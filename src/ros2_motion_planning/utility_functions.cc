@@ -22,11 +22,11 @@ namespace motion_planning {
 
   // Calculate terrain cost multiplier based on OccupancyGrid cell value (-128 to 127)
   double terrain_multiplier(const int8_t& cell) {
-    // Normalize traversable values [-127, 127] to [0.0, 1.0] (1.0 = easiest terrain)
-    double norm = (static_cast<double>(cell) - (-127.0)) / (127.0 - (-127.0));
+    // Normalize traversable values [-127, 127] to [0.0, 1.0] (0.0 = easiest terrain)
+    double norm = (127.0 - static_cast<double>(cell)) / 255.0;
     norm = (norm < 0.0) ? 0.0 : ((norm > 1.0) ? 1.0 : norm);
-    // Map to cost factor in range [1.0, 3.0] (1.0 = easiest terrain)
-    return 1.0 + 2.0 * (1.0 - norm);
+    // Map to cost factor in range [1.0, 5.0] (1.0 = easiest terrain, 5.0 = hardest terrain)
+    return 1.0 + 4.0 * norm;
   }
 
 }

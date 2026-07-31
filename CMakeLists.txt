@@ -93,6 +93,10 @@ install(DIRECTORY maps/
   DESTINATION share/${PROJECT_NAME}/maps
 )
 
+install(DIRECTORY launch rviz
+  DESTINATION share/${PROJECT_NAME}
+)
+
 ament_export_dependencies(${dependencies} Boost rosidl_default_runtime)
 ament_export_include_directories(include)
 

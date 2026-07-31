@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 
   auto service = node->create_service<ros2_motion_planning::srv::MotionPlanningService>("planning_query", &handle_planning_request);
 
-  RCLCPP_INFO(rclcpp::get_logger("motion_planning_server"), "Unified Motion Planning Server is ready.");
+  RCLCPP_INFO(rclcpp::get_logger("motion_planning_server"), "Motion planning server is ready.");
   
   rclcpp::spin(node);
   rclcpp::shutdown();

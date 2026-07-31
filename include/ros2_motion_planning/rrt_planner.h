@@ -22,7 +22,7 @@ namespace motion_planning {
       );
 
     private:
-      const double robot_radius = 0.25; 
+      const double robot_radius = 0.1; 
       const int8_t obstacle = -128; 
       
       bool interpolate_collision(
