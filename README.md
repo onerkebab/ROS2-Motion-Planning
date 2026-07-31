@@ -38,7 +38,7 @@ With terrain multiplier $k = 4.0$:
 
 For a grid step of distance $d_{\text{step}}$, the movement cost added to $g(n)$ is:
 
-$$\text{move\_cost} = d_{\text{step}} \cdot M(c) + \text{turn\_cost}(\theta_i, \theta_f)$$
+$$\text{movecost} = d_{\text{step}} \cdot M(c) + \text{turncost}(\theta_i, \theta_f)$$
 
 > **Note:** Tuning $k$ controls the planner's sensitivity to terrain. Increasing $k$ heavily penalizes high-cost cells, forcing A\* to hug low-cost corridors rather than taking shortcuts through high-cost patches.
 
