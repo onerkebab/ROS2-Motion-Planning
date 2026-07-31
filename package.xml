@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="3">
+
+  <name>ros2_motion_planning</name>
+  <version>1.0.0</version>
+  <description>Terrain-weighted 2D motion planning package implementing A* grid search and RRT sampling-based motion planning algorithms in ROS 2.</description>
+  <license>MIT</license>
+  <maintainer email="phan.ta.khoi@gmail.com">T1 Oner</maintainer>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <!-- ROS packages -->
+  <depend>rclcpp</depend>
+  <depend>pluginlib</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>visualization_msgs</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>
