@@ -28,7 +28,7 @@ Plan a collision-free path for a mobile robot from a some starting pose $(x_0, y
 
 The edge traversal cost in A* scales with terrain difficulty. For an `OccupancyGrid` cell value $c \in [-128, 127]$ (where $c = -128$ is an obstacle), the normalized difficulty $c_{norm} \in [0.0, 1.0]$ and terrain multiplier $M(c)$ are defined as:
 
-$$c_{norm} = \operatorname{clamp}\left(\frac{127 - c}{255}, \, 0.0, \, 1.0\right)$$
+$$c_{norm} = \text{clamp}\left(\frac{127 - c}{255}, \, 0.0, \, 1.0\right)$$
 
 $$M(c) = 1.0 + k \cdot c_{norm}$$
 
