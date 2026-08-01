@@ -71,7 +71,7 @@ nav_msgs/Path plan
 - **C++ 17**
 - Boost (`program_options`)
 
-## Build Instructions
+## Build
 
 Ubuntu Linux 24.04
 
