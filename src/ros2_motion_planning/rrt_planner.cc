@@ -3,8 +3,11 @@
 #include <cmath>
 #include <random>
 #include <chrono>
+#include <thread>
 
 #include <rclcpp/rclcpp.hpp>
+#include <visualization_msgs/msg/marker.hpp>
+#include <geometry_msgs/msg/point.hpp>
 
 #include "ros2_motion_planning/rrt_node.h"
 #include "ros2_motion_planning/utility_functions.h"
@@ -50,7 +53,8 @@ namespace motion_planning {
 
   bool RRTPlanner::generate_path(
     const std::shared_ptr<ros2_motion_planning::srv::MotionPlanningService::Request>& request,
-    const std::shared_ptr<ros2_motion_planning::srv::MotionPlanningService::Response>& response
+    const std::shared_ptr<ros2_motion_planning::srv::MotionPlanningService::Response>& response,
+    const rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr& vis_pub
   ) {
     
     // Extract map information and expand C-space
@@ -78,6 +82,25 @@ namespace motion_planning {
 
     std::shared_ptr<motion_planning::RRTNode> goal_node = nullptr;
 
+    // Visualization setup for RRT tree
+    visualization_msgs::msg::Marker tree_marker;
+    int edge_count = 0;
+    if (vis_pub != nullptr) {
+      tree_marker.header.frame_id = "map";
+      tree_marker.header.stamp = rclcpp::Clock().now();
+      tree_marker.ns = "rrt_tree";
+      tree_marker.id = 0;
+      tree_marker.type = visualization_msgs::msg::Marker::LINE_LIST;
+      tree_marker.action = visualization_msgs::msg::Marker::ADD;
+      tree_marker.scale.x = 0.04;
+      tree_marker.color.r = 0.0;
+      tree_marker.color.g = 0.9;
+      tree_marker.color.b = 0.5;
+      tree_marker.color.a = 0.8;
+      tree_marker.pose.orientation.w = 1.0;
+      tree_marker.lifetime = rclcpp::Duration::from_nanoseconds(0);
+    }
+
     // RRT parameters
     int max_iter = 100000;
     double step_size = 0.5; // (m)
@@ -86,10 +109,10 @@ namespace motion_planning {
     auto start_time = std::chrono::steady_clock::now(); // Starts keeping track of time
     for (int i = 0; i < max_iter; i++) {
      
-      // Check time performance requirement
+      // Check time performance requirement (bypassed during visual animation)
       auto current_time = std::chrono::steady_clock::now();
       std::chrono::duration<double> elapsed_time = current_time - start_time;
-      if (elapsed_time.count() >= 10.0) {
+      if (vis_pub == nullptr && elapsed_time.count() >= 10.0) {
         RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "RRT Planner exceeded 10 seconds requirement, ending algorithm...");
         return false;
       }
@@ -117,8 +140,26 @@ namespace motion_planning {
 
       // Check for collisions
       if (interpolate_collision(q_near->x, q_near->y, new_x, new_y, request->map, cspace)) {
+
         auto q_new = std::make_shared<motion_planning::RRTNode>(new_x, new_y, new_theta, 0.0, q_near);
         tree.push_back(q_new);
+
+        if (vis_pub != nullptr) {
+          geometry_msgs::msg::Point p1, p2;
+          p1.x = q_near->x; p1.y = q_near->y; p1.z = 0.0;
+          p2.x = q_new->x;  p2.y = q_new->y;  p2.z = 0.0;
+          tree_marker.points.push_back(p1);
+          tree_marker.points.push_back(p2);
+          edge_count++;
+
+          if (edge_count % 50 == 0) {
+            tree_marker.header.stamp = rclcpp::Clock().now();
+            visualization_msgs::msg::MarkerArray marker_array;
+            marker_array.markers.push_back(tree_marker);
+            vis_pub->publish(marker_array);
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+          }
+        }
 
         // Check if within step_size of goal and clear of obstacles
         double goal_dist = motion_planning::euclidean_dist(new_x, new_y, request->goal.x, request->goal.y);
@@ -139,6 +180,26 @@ namespace motion_planning {
 
     // Backtrack from goal node (if found) to populate plan
     if (goal_node != nullptr) {
+
+      if (vis_pub != nullptr && !tree_marker.points.empty()) {
+
+        geometry_msgs::msg::Point p1, p2;
+        p1.x = goal_node->bp->x; 
+        p1.y = goal_node->bp->y; 
+        p1.z = 0.0;
+        p2.x = goal_node->x;     
+        p2.y = goal_node->y;     
+        p2.z = 0.0;
+        
+        tree_marker.points.push_back(p1);
+        tree_marker.points.push_back(p2);
+
+        tree_marker.header.stamp = rclcpp::Clock().now();
+        visualization_msgs::msg::MarkerArray marker_array;
+        marker_array.markers.push_back(tree_marker);
+        vis_pub->publish(marker_array);
+
+      }
 
       // Send response
       response->plan.poses = motion_planning::populate_plan(goal_node);

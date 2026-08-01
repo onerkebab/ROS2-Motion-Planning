@@ -117,6 +117,7 @@ int main(int argc, char* argv[]) {
     ("help,h", "Produce help message")
     ("map,m", po::value<std::string>(), "Path to PGM map file (required)")
     ("algorithm,a", po::value<std::string>()->default_value("astar"), "Planning algorithm ('astar' or 'rrt')")
+    ("animate", po::value<bool>()->default_value(false), "Enable live search exploration visualization in RViz")
     ("start-x,x0", po::value<double>()->default_value(-20.0), "Start position X (m)")
     ("start-y,y0", po::value<double>()->default_value(0.0), "Start position Y (m)")
     ("start-theta,t0", po::value<double>()->default_value(0.0), "Start heading angle (rad)")
@@ -161,6 +162,7 @@ int main(int argc, char* argv[]) {
   request->goal.theta = vm["goal-theta"].as<double>();
 
   request->algorithm = vm["algorithm"].as<std::string>();
+  request->animate = vm["animate"].as<bool>();
 
   request->map.header.frame_id = "map";
   request->map.header.stamp = node->get_clock()->now();

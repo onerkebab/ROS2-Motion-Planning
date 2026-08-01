@@ -4,8 +4,13 @@
 #include <queue>
 #include <cmath>
 #include <chrono>
+#include <thread>
+#include <algorithm>
 
 #include <rclcpp/rclcpp.hpp>
+#include <visualization_msgs/msg/marker.hpp>
+#include <geometry_msgs/msg/point.hpp>
+#include <std_msgs/msg/color_rgba.hpp>
 
 #include "ros2_motion_planning/astar_node.h"
 #include "ros2_motion_planning/utility_functions.h"
@@ -15,7 +20,8 @@ namespace motion_planning {
 
   bool AStarPlanner::generate_path(
     const std::shared_ptr<ros2_motion_planning::srv::MotionPlanningService::Request>& request,
-    const std::shared_ptr<ros2_motion_planning::srv::MotionPlanningService::Response>& response
+    const std::shared_ptr<ros2_motion_planning::srv::MotionPlanningService::Response>& response,
+    const rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr& vis_pub
   ) {
   
     // Extract map information and expand C-space for obstacles
@@ -50,14 +56,31 @@ namespace motion_planning {
 
     std::shared_ptr<motion_planning::AStarNode> goal_node = nullptr;
 
+    // Visualization setup for A* closed list
+    visualization_msgs::msg::Marker closed_marker;
+    int expand_count = 0;
+    if (vis_pub != nullptr) {
+      closed_marker.header.frame_id = "map";
+      closed_marker.header.stamp = rclcpp::Clock().now();
+      closed_marker.ns = "astar_closed_list";
+      closed_marker.id = 0;
+      closed_marker.type = visualization_msgs::msg::Marker::CUBE_LIST;
+      closed_marker.action = visualization_msgs::msg::Marker::ADD;
+      closed_marker.scale.x = res * 0.8;
+      closed_marker.scale.y = res * 0.8;
+      closed_marker.scale.z = 0.02;
+      closed_marker.pose.orientation.w = 1.0;
+      closed_marker.lifetime = rclcpp::Duration::from_nanoseconds(0);
+    }
+
     // A* search loop
     const auto start_time = std::chrono::steady_clock::now(); // Starts keeping track of time
     while (!open_list.empty()) {
 
-      // Check time performance requirement
+      // Check time performance requirement (bypassed during visual animation)
       auto current_time = std::chrono::steady_clock::now();
       std::chrono::duration<double> elapsed_time = current_time - start_time;
-      if (elapsed_time.count() >= 10.0) {
+      if (vis_pub == nullptr && elapsed_time.count() >= 10.0) {
         RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "A* Planner exceeded 10 seconds requirement, ending algorithm...");
         return false;
       }
@@ -73,6 +96,31 @@ namespace motion_planning {
       if (closed_list[current_idx] != nullptr) continue;
       else closed_list[current_idx] = current_node;
       
+      // Visualization setup for A* closed list
+      if (vis_pub != nullptr) {
+        geometry_msgs::msg::Point p;
+        p.x = origin_x + (current_node->x * res);
+        p.y = origin_y + (current_node->y * res);
+        p.z = 0.0;
+        closed_marker.points.push_back(p);
+
+        std_msgs::msg::ColorRGBA color;
+        color.r = 0.0;
+        color.g = 0.9;
+        color.b = 0.5;
+        color.a = 0.8;
+        closed_marker.colors.push_back(color);
+
+        expand_count++;
+        if (expand_count % 200 == 0) {
+          closed_marker.header.stamp = rclcpp::Clock().now();
+          visualization_msgs::msg::MarkerArray marker_array;
+          marker_array.markers.push_back(closed_marker);
+          vis_pub->publish(marker_array);
+          std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+      }
+
       // Arrived at goal (x,y)
       if (current_node->x == goal_x && current_node->y == goal_y) {
         
@@ -129,6 +177,13 @@ namespace motion_planning {
 
     // Backtrack from goal node (if found) to populate plan
     if (goal_node != nullptr) {
+
+      if (vis_pub != nullptr && !closed_marker.points.empty()) {
+        closed_marker.header.stamp = rclcpp::Clock().now();
+        visualization_msgs::msg::MarkerArray marker_array;
+        marker_array.markers.push_back(closed_marker);
+        vis_pub->publish(marker_array);
+      }
 
       // Send response
       response->plan.poses = motion_planning::populate_plan(goal_node, origin_x, origin_y, res);

@@ -9,10 +9,11 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     pkg_share = FindPackageShare('ros2_motion_planning')
 
-    # Launch Configurations
-    map_name = LaunchConfiguration('map_name')
-    map_path = LaunchConfiguration('map')
+    # Arguments
+    map_name = LaunchConfiguration('map')
+    map_path = LaunchConfiguration('map_path')
     algorithm = LaunchConfiguration('algorithm')
+    animate = LaunchConfiguration('animate')
     start_x = LaunchConfiguration('start_x')
     start_y = LaunchConfiguration('start_y')
     start_theta = LaunchConfiguration('start_theta')
@@ -22,14 +23,13 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration('use_rviz')
     rviz_config = LaunchConfiguration('rviz_config')
 
-    # Declare Launch Arguments
     declare_map_name = DeclareLaunchArgument(
-        'map_name',
+        'map',
         default_value='terrain_open.pgm',
         description='Name of the PGM map file inside the package maps/ directory'
     )
-    declare_map = DeclareLaunchArgument(
-        'map',
+    declare_map_path = DeclareLaunchArgument(
+        'map_path',
         default_value=PathJoinSubstitution([pkg_share, 'maps', map_name]),
         description='Full path to the PGM terrain map file'
     )
@@ -37,6 +37,11 @@ def generate_launch_description():
         'algorithm',
         default_value='astar',
         description="Planning algorithm to use ('astar' or 'rrt')"
+    )
+    declare_animate = DeclareLaunchArgument(
+        'animate',
+        default_value='false',
+        description='Whether to enable live search exploration visualization in RViz'
     )
     declare_start_x = DeclareLaunchArgument(
         'start_x', default_value='-20.0', description='Start position X (m)'
@@ -92,6 +97,7 @@ def generate_launch_description():
         arguments=[
             '--map', map_path,
             '--algorithm', algorithm,
+            '--animate', animate,
             '--start-x', start_x,
             '--start-y', start_y,
             '--start-theta', start_theta,
@@ -107,8 +113,9 @@ def generate_launch_description():
 
     return LaunchDescription([
         declare_map_name,
-        declare_map,
+        declare_map_path,
         declare_algorithm,
+        declare_animate,
         declare_start_x,
         declare_start_y,
         declare_start_theta,

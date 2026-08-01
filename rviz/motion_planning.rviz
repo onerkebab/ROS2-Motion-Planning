@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Map1
         - /MarkerArray1
+        - /Search Visualization1
         - /Path1
       Splitter Ratio: 0.5
     Tree Height: 400
@@ -42,10 +43,20 @@ Visualization Manager:
         Reliability: Reliable
         Value: /visualization_marker_array
       Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: Search Visualization
+      Topic:
+        Depth: 5
+        Durability: Volatile
+        History: Keep Last
+        Reliability: Reliable
+        Value: /search_visualization
+      Value: true
     - Class: rviz_default_plugins/Path
       Alpha: 1.0
       Buffer Length: 1
-      Color: 0; 0; 180
+      Color: 0; 0; 230
       Enabled: true
       Head Diameter: 0.3
       Head Length: 0.2

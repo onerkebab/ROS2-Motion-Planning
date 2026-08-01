@@ -37,7 +37,7 @@ namespace motion_planning {
       // For RRT: Nodes already store position in continuous (x,y) coordinates with respect to origin in (m). Set res = 1 and origin = (0,0).
       pose.pose.position.x = (node->x * res) + origin_x;
       pose.pose.position.y = (node->y * res) + origin_y;
-      pose.pose.position.z = 0.0;
+      pose.pose.position.z = 0.05; // Elevate path slightly above exploration markers for clean RViz rendering
 
       // Quaternion representation for PoseStamped
       pose.pose.orientation.x = 0.0;

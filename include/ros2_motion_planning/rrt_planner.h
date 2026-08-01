@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <rclcpp/publisher.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 
 #include <nav_msgs/msg/occupancy_grid.hpp>
 
@@ -18,7 +20,8 @@ namespace motion_planning {
 
       bool generate_path(
         const std::shared_ptr<ros2_motion_planning::srv::MotionPlanningService::Request>& request,
-        const std::shared_ptr<ros2_motion_planning::srv::MotionPlanningService::Response>& response
+        const std::shared_ptr<ros2_motion_planning::srv::MotionPlanningService::Response>& response,
+        const rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr& vis_pub = nullptr
       );
 
     private:
