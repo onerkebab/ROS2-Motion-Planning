@@ -1,6 +1,6 @@
 # ROS 2 Motion Planning
 
-![MIT](https://img.shields.io/badge/License-MIT-%23750014) [![ROS](https://img.shields.io/badge/ROS-22314E?logo=ROS&logoColor=white)](#) [![C++](https://img.shields.io/badge/C++-%2300599C.svg?logo=c%2B%2B&logoColor=white)](#)
+![MIT](https://img.shields.io/badge/License-MIT-%23750014) [![ROS](https://img.shields.io/badge/ROS-22314E?logo=ROS&logoColor=white)](#) [![C++](https://img.shields.io/badge/C++-%2300599C.svg?logo=c%2B%2B&logoColor=white)](#) [![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff)](#)
 
 A ROS 2 package implementing **A\* Search** and **RRT** (Rapidly-exploring Random Tree) motion planning algorithms for a mobile robot navigating 2D terrain maps, using a client-service architecture. The planner accepts start/goal poses and a map file with grayscale elevation values representing "terrain," or difficulty to traverse. It inflates configuration space obstacles for a cylindrical robot, and computes a minimum-cost collision-free path visualizable in RViz. 
 
