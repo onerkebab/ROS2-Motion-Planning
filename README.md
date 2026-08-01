@@ -17,7 +17,7 @@ A ROS 2 package implementing **A\*** and **RRT** (Rapidly-exploring Random Tree)
 
 <img src="assets/Astarmaze.gif" width="49%" /> <img src="assets/Astarmixed.gif" width="49%" />
 
-> A* tields the most optimal solution everytime, following easiest terrain path.
+> A* yields the most optimal solution every time, following easiest terrain path.
 
 - **RRT**: 
   * Probabilistic path planning algorithm that grows a tree of random samples, with line-segment interpolation for collision awareness.
