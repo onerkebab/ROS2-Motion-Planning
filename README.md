@@ -119,3 +119,6 @@ ros2 launch ros2_motion_planning motion_planning.launch.py \
 > The terrain map will occasionally fail to load initially when running with `animate:=true`, but will appear at the end of the search.
 
 > To run without launching RViz, add `use_rviz:=false` to the launch command.
+
+## License
+This project is licensed under the [MIT License](LICENSE).
